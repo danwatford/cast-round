@@ -24,7 +24,7 @@ export const initUser = (sequelize: Sequelize) =>
       updatedAt: DataTypes.DATE,
 
       roles: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         get() {
           const value = this.getDataValue("roles");
           return value ? JSON.parse(value) : [];

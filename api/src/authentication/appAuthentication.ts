@@ -45,7 +45,8 @@ const mwVerifyFunction: Oauth2VerifyFunction = async (
       Effect.andThen(userInfoToExpressUser("membership-works")),
       Effect.andThen((expressUser) => verified(null, expressUser))
     )
-    .pipe(Effect.catchAll((err) => Effect.sync(() => verified(err))));
+    .pipe(Effect.catchAll((err) => 
+      Effect.sync(() => verified(err))));
 
   await Effect.runPromise(program);
 

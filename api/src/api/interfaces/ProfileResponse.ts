@@ -4,7 +4,7 @@ export default interface ProfileResponse {
   profile: {
     id: string;
     name: string;
-    roles: any[];
+    roles: string[];
     groupDelegateInfo?: {
       delegateForGroupId: string;
       delegateForGroupName: string;

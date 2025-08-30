@@ -2,6 +2,10 @@ import { Array, Effect, Equivalence, Option, Order, Data, Equal } from "effect";
 import { User } from "../../persistence/db/models/User";
 import { SequelizeTransaction } from "../../persistence/db/SequelizeTransaction";
 import { RoleDefinition, RolesCollection } from "../types";
+import {
+  publishUserRolesUpdatedDomainEvent,
+  UserRolesUpdatedDomainEvent,
+} from "../domain-events/events";
 
 const appRolesToRolesCollection = (
   rolesAppId: string,
@@ -64,6 +68,11 @@ export const createUser =
                   cause: unknown,
                 }),
             })
+          ),
+          Effect.tap(() =>
+            publishUserRolesUpdatedDomainEvent(
+              UserRolesUpdatedDomainEvent({ userId, roles: user.roles })
+            )
           )
         )
       )

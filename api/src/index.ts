@@ -6,6 +6,7 @@ import { domainEventsBackendDaemon } from "./services/domain-events/backend";
 import { initUsersAndRoles } from "./UsersAndRoles/init";
 import { initDomainEventsService } from "./services/domain-events/init";
 import { initDbPersistenceModel } from "./persistence/db/models";
+import { initVoting } from "./voting/init";
 
 const main = async () => {
   logger.info("Initialising database...");
@@ -14,6 +15,7 @@ const main = async () => {
   const program = Effect.gen(function* programGenerator() {
     yield* initDomainEventsService();
     yield* Effect.sync(() => initUsersAndRoles());
+    yield* Effect.sync(() => initVoting());
     yield* Effect.log("Before setting up domain events backend");
     yield* domainEventsBackendDaemon();
     yield* Effect.log("Finished setting up domain events backend");

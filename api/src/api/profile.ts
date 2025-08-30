@@ -12,7 +12,9 @@ profileRouter.get<{}, ProfileResponse>("/", nocache(), (req, res) => {
       profile: {
         id: req.user.loggedInUser.userId,
         name: req.user.loggedInUser.displayName,
-        roles: []
+        roles: req.user.loggedInUser.roles.map(
+          (role) => `${role.appId}:${role.name}`
+        ),
       },
       frontEndFeatureFlags: getFrontEndFeatureFlags(),
     });

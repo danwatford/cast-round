@@ -1,9 +1,11 @@
-import { Effect, Option, Queue } from "effect";
+import { Effect, Fiber, Option, Queue } from "effect";
 import { Transaction } from "sequelize";
 import { SequelizeTransaction } from "../../persistence/db/SequelizeTransaction";
 import { PublishedDomainEvent } from "../../persistence/db/models/DomainEvent";
 import { wrapWithTransaction } from "../../persistence/db/transaction";
 import { offerEventToSubscriber } from "./subscriptions";
+
+let queueRunnerFibre: Fiber.RuntimeFiber<unknown, unknown> | undefined;
 
 const publishedEventsNotificationQueue = Effect.runSync(
   Queue.unbounded<number>()
@@ -11,7 +13,13 @@ const publishedEventsNotificationQueue = Effect.runSync(
 
 export const notifyDomainEventPublished = () =>
   Queue.offer(publishedEventsNotificationQueue, 1).pipe(
-    Effect.tap(Effect.log("Notified domain event published"))
+    Effect.tap(() =>
+      Option.fromNullable(queueRunnerFibre).pipe(
+        Effect.andThen((fibre) =>
+          Effect.log(`Queue runner fibre status: ${fibre.status}`)
+        )
+      )
+    )
   );
 
 const getNextPublishedDomainEvents = (transaction: Transaction) =>
@@ -58,5 +66,6 @@ const queueRunner = () =>
 // Effect which forks a the backend domain events service.
 export const domainEventsBackendDaemon = () =>
   Effect.gen(function* domainEventsBackendDaemonGenerator() {
-    yield* Effect.forkDaemon(queueRunner());
+    queueRunnerFibre = yield* Effect.forkDaemon(queueRunner());
+    return queueRunnerFibre;
   });
