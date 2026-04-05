@@ -115,10 +115,40 @@ jobs:
         run: scp -r dist/* "hosting:$HOSTING_WEB_INSTALL_DIRECTORY"
         working-directory: ./front-end
 
+      - name: Stop and clean up stale app processes
+        run: |
+          ssh hosting <<EOF
+          set -e
+
+          # Stop the managed app if it exists.
+          /usr/sbin/cloudlinux-selector stop --json --interpreter nodejs --app-root $HOSTING_APP_INSTALL_DIRECTORY || true
+
+          echo "Matching processes before cleanup:"
+          pgrep --list-full --full "$HOSTING_APP_INSTALL_DIRECTORY" || true
+
+          # Attempt graceful termination first.
+          pkill --full "$HOSTING_APP_INSTALL_DIRECTORY" || true
+          sleep 2
+
+          # Force kill if anything is still running.
+          if pgrep --full "$HOSTING_APP_INSTALL_DIRECTORY" >/dev/null; then
+            pkill --signal KILL --full "$HOSTING_APP_INSTALL_DIRECTORY" || true
+            sleep 1
+          fi
+
+          # Strict final verification.
+          if pgrep --full "$HOSTING_APP_INSTALL_DIRECTORY" >/dev/null; then
+            echo "Stale processes still running after cleanup:"
+            pgrep --list-full --full "$HOSTING_APP_INSTALL_DIRECTORY" || true
+            exit 1
+          fi
+          EOF
+
       - name: Destroy and remove the existing hosted node app, if any
         run: |
-          ssh hosting <<EOF 
-          /usr/sbin/cloudlinux-selector destroy --json --interpreter nodejs --app-root $HOSTING_APP_INSTALL_DIRECTORY
+          ssh hosting <<EOF
+          set -e
+          /usr/sbin/cloudlinux-selector destroy --json --interpreter nodejs --app-root $HOSTING_APP_INSTALL_DIRECTORY || true
           if [ -d $HOSTING_APP_INSTALL_DIRECTORY ]; then 
             rm -r $HOSTING_APP_INSTALL_DIRECTORY
           fi
