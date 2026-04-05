@@ -14,20 +14,33 @@ const main = async () => {
   const program = Effect.gen(function* programGenerator() {
     yield* initDomainEventsService();
     yield* Effect.sync(() => initUsersAndRoles());
-    yield* Effect.log("Before setting up domain events backend");
+    yield* Effect.sync(() =>
+      logger.info("Before setting up domain events backend")
+    );
     yield* domainEventsBackendDaemon();
-    yield* Effect.log("Finished setting up domain events backend");
+    yield* Effect.sync(() =>
+      logger.info("Finished setting up domain events backend")
+    );
 
     yield* registerRolesForApplication("dlwTest", ["role1", "role2"]);
   });
 
-  Effect.runPromise(program).then(() => console.log("Promise 1 finished"));
+  Effect.runPromise(program)
+    .then(() => {
+      logger.info("Initial startup Effect completed.");
+    })
+    .catch((error) => {
+      logger.error("Initial startup Effect failed.", { error });
+    });
 
   logger.info("Starting app server...");
   const port = process.env.PORT || 5000;
   app.listen(port, () => {
-    logger.info("App server listening for connections.");
+    logger.info("App server listening for connections.", { port });
   });
 };
 
-main();
+main().catch((error) => {
+  logger.error("Application failed to start.", { error });
+  process.exit(1);
+});

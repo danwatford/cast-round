@@ -175,6 +175,13 @@ jobs:
           cat >$HOSTING_APP_INSTALL_DIRECTORY/.env <<END
           NODE_ENV=production
 
+          # Logging controls.
+          LOG_LEVEL=info
+          LOG_FORMAT=json
+          LOG_DIR=logs
+          LOG_MAX_SIZE=5242880
+          LOG_MAX_FILES=5
+
           # Connection details for the MySQL database.
           MYSQL_DATABASE=$MYSQL_DATABASE
           MYSQL_USER=$MYSQL_USER

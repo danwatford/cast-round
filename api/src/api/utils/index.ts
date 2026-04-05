@@ -22,7 +22,14 @@ export const standardJsonResponseFold = <A>(res: Response<A>) =>
         res.sendStatus(404);
       } else {
         res.sendStatus(500);
-        logger.error(err);
+        logger.error("Request failed in standardJsonResponseFold", {
+          requestId: res.req.requestId,
+          method: res.req.method,
+          path: res.req.originalUrl,
+          statusCode: 500,
+          error: err,
+        });
+        (res.locals as { errorLogged?: boolean }).errorLogged = true;
       }
       return T.of(undefined);
     },

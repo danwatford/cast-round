@@ -4,6 +4,7 @@ import { SequelizeTransaction } from "../../persistence/db/SequelizeTransaction"
 import { PublishedDomainEvent } from "../../persistence/db/models/DomainEvent";
 import { wrapWithTransaction } from "../../persistence/db/transaction";
 import { offerEventToSubscriber } from "./subscriptions";
+import logger from "../../utils/logging";
 
 const publishedEventsNotificationQueue = Effect.runSync(
   Queue.unbounded<number>()
@@ -11,7 +12,9 @@ const publishedEventsNotificationQueue = Effect.runSync(
 
 export const notifyDomainEventPublished = () =>
   Queue.offer(publishedEventsNotificationQueue, 1).pipe(
-    Effect.tap(Effect.log("Notified domain event published"))
+    Effect.tap(() =>
+      Effect.sync(() => logger.debug("Notified domain event published"))
+    )
   );
 
 const getNextPublishedDomainEvents = (transaction: Transaction) =>
@@ -50,7 +53,9 @@ const getAndProcessNextDomainEvent = () =>
 // Fork into a new fiber.
 const queueRunner = () =>
   Queue.take(publishedEventsNotificationQueue).pipe(
-    Effect.tap((item) => Effect.log(`Queue item: ${item}`)),
+    Effect.tap((item) =>
+      Effect.sync(() => logger.debug("Domain event queue item received", { item }))
+    ),
     Effect.andThen(() => wrapWithTransaction(getAndProcessNextDomainEvent())),
     Effect.forever
   );

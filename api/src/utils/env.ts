@@ -1,4 +1,4 @@
-import { cleanEnv, port, str, url, bool } from "envalid";
+import { cleanEnv, port, str, url, bool, num } from "envalid";
 import { config } from "dotenv";
 
 config();
@@ -27,6 +27,27 @@ const validateEnv = () =>
     FEATURE_UI_EVENT_TELLORS: bool({
       default: false,
       desc: "Enable use of event tellors in the frontend.",
+    }),
+
+    LOG_LEVEL: str({
+      default: "",
+      desc: "Optional log level override (for example: error, warn, info, debug).",
+    }),
+    LOG_FORMAT: str({
+      default: "",
+      desc: "Optional log format override (json or pretty).",
+    }),
+    LOG_DIR: str({
+      default: "logs",
+      desc: "Directory for file-based logs.",
+    }),
+    LOG_MAX_SIZE: num({
+      default: 5242880,
+      desc: "Max log file size in bytes before rotation.",
+    }),
+    LOG_MAX_FILES: num({
+      default: 5,
+      desc: "Number of rotated log files to retain.",
     }),
   });
 

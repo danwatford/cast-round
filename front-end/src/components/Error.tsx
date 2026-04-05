@@ -2,7 +2,10 @@ import { useRouteError } from "react-router-dom";
 
 export default function ErrorPage() {
   const error: any = useRouteError();
-  console.error(error);
+  if (import.meta.env.DEV) {
+    // Keep noisy browser logging in development only.
+    console.error(error);
+  }
 
   if (error === "forbidden") {
     return (
