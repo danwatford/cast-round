@@ -1,23 +1,29 @@
 {
   "name": "Node.js & TypeScript",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
-
+  "remoteUser": "node",
   "runArgs": ["--add-host=host.docker.internal:host-gateway"],
-
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/dhoeric/features/act:1": {}
   },
-
+  "mounts": [
+    "source=${localEnv:HOME}/.codex,target=/home/node/.codex,type=bind,consistency=cached"
+  ],
+  "initializeCommand": "mkdir --parents \"${HOME}/.codex\"",
+  "postCreateCommand": "bash -lc 'codex_version=$(npm view @openai/codex version) && codex_major=${codex_version%%.*} && if [ \"$codex_major\" -ge 1 ]; then npm install --global --no-fund --no-audit \"@openai/codex@$codex_major\"; else npm install --global --no-fund --no-audit @openai/codex; fi'",
+  "containerEnv": {
+    "NSFAI_API_KEY": "${localEnv:NSFAI_API_KEY}"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "ms-vscode-remote.remote-containers",
         "Orta.vscode-jest",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "openai.chatgpt"
       ]
     }
   }
