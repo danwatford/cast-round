@@ -52,7 +52,12 @@ When changing shared behaviors (auth, API contracts, DB persistence, routing), p
   - `cpanel-deploy-PROD.yml` (push tag `prod` or manual dispatch).
 - Pipelines build API and frontend in GitHub Actions using Node 20.
 - Hosted app creation is done through `cloudlinux-selector` with Node version `20`.
+- Both TEST and PROD workflows now run an explicit stale-process cleanup step before destroying/replacing the app:
+  - Attempts `cloudlinux-selector stop` (non-fatal if app is absent).
+  - Uses `pgrep/pkill` against `HOSTING_APP_INSTALL_DIRECTORY` to terminate lingering app processes.
+  - Fails deployment if any matching process remains after cleanup.
 - TEST workflow runs DB migrations (`dbMigrate`) during deploy; PROD currently installs modules and starts app without a migration step.
+- `cloudlinux-selector --app-root` values in this repo are relative app-root paths (for example `apps/crtest`), not absolute `/home/...` paths.
 
 ## Environment and Secrets
 
