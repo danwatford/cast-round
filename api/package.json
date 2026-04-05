@@ -18,6 +18,9 @@
     "url": "https://github.com/morrisfed/cast-round-api"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "dependencies": {
     "@stdlib/string-remove-utf8-bom": "^0.0.9",
     "axios": "^1.3.6",
