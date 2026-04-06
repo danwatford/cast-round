@@ -1,4 +1,4 @@
-import express, { Request } from "express";
+import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
@@ -33,8 +33,24 @@ const parseMorganMessage = (message: string) => {
   }
 };
 
-const getRequestIdForMorgan = (req: Parameters<morgan.FormatFn>[1]) =>
-  ((req as Request).requestId || req.headers["x-request-id"] || "").toString();
+type MorganRequestWithOptionalRequestId = Parameters<morgan.FormatFn>[1] & {
+  requestId?: string;
+};
+
+const getRequestIdForMorgan = (req: Parameters<morgan.FormatFn>[1]) => {
+  const requestWithOptionalRequestId = req as MorganRequestWithOptionalRequestId;
+  const headerRequestId = requestWithOptionalRequestId.headers["x-request-id"];
+
+  if (requestWithOptionalRequestId.requestId) {
+    return requestWithOptionalRequestId.requestId;
+  }
+
+  if (Array.isArray(headerRequestId)) {
+    return headerRequestId[0]?.toString() || "";
+  }
+
+  return headerRequestId?.toString() || "";
+};
 
 const morganStructuredFormatter: morgan.FormatFn = (tokens, req, res) =>
   JSON.stringify({

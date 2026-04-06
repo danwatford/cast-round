@@ -11,6 +11,7 @@ import nocache from "nocache";
 import { URLSearchParams } from "url";
 import { Effect } from "effect";
 import env from "../utils/env";
+import logger from "../utils/logging";
 import { User as URUser } from "../UsersAndRoles/types";
 import { wrapWithTransaction } from "../persistence/db/transaction";
 import { loginMwUser } from "../membership-works-users/application";
@@ -45,7 +46,17 @@ const mwVerifyFunction: Oauth2VerifyFunction = async (
       Effect.andThen(userInfoToExpressUser("membership-works")),
       Effect.andThen((expressUser) => verified(null, expressUser))
     )
-    .pipe(Effect.catchAll((err) => Effect.sync(() => verified(err))));
+    .pipe(
+      Effect.catchAll((err) =>
+        Effect.sync(() => {
+          logger.error("MembershipWorks OAuth verify failed", {
+            hasCause: Boolean((err as { cause?: unknown })?.cause),
+            error: err,
+          });
+          verified(err);
+        })
+      )
+    );
 
   await Effect.runPromise(program);
 
@@ -144,6 +155,18 @@ authRoute.get(
     res.redirect("/");
   },
   (err: any, req: Request, res: Response, next: NextFunction) => {
+    logger.error("MembershipWorks callback authentication failed", {
+      requestId: req.requestId,
+      path: req.originalUrl,
+      method: req.method,
+      hasCode: typeof req.query.code === "string",
+      codeLength:
+        typeof req.query.code === "string" ? req.query.code.length : null,
+      message: err?.message,
+      cause: err?.cause,
+      error: err,
+    });
+
     const cause = err?.cause;
     if (cause) {
       res.redirect("/?error=login-failed");

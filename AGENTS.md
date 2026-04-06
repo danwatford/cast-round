@@ -33,8 +33,13 @@ This file provides guidance for coding agents working in this repository.
 1. Backend
    - `cd api`
    - `npm ci`
-   - `npm run dev` (uses `api/.env.dev`)
+   - Create `api/.env.dev.local` from `api/.env.dev.local.template` and fill local secrets:
+     - `MW_OAUTH2_CLIENT_ID`
+     - `MW_OAUTH2_CLIENT_SECRET`
+     - `ADMIN_MW_LABEL_ID`
+   - `npm run dev` (loads `api/.env.dev` then `api/.env.dev.local`)
    - Run migrations when needed: `npm run devDbMigrate`
+   - If auth callback fails with DB table errors (for example `ER_NO_SUCH_TABLE` on `mwMwAccounts`), run `npm run devDbMigrate` before further auth debugging.
 2. Frontend
    - `cd front-end`
    - `npm ci`
@@ -56,6 +61,11 @@ This file provides guidance for coding agents working in this repository.
 
 When changing shared behaviors (auth, API contracts, DB persistence, routing), prefer running both backend and frontend build checks.
 
+## Troubleshooting
+
+- MembershipWorks OAuth callback redirecting to `/?error=login-failed` can be caused by missing DB schema in local dev (not invalid credentials).
+- If logs include `ER_NO_SUCH_TABLE` (for example `crdev.mwMwAccounts`), run `cd api && npm run devDbMigrate`, then restart backend dev server.
+
 ## Deployment Notes
 
 - Workflows:
@@ -73,12 +83,22 @@ When changing shared behaviors (auth, API contracts, DB persistence, routing), p
 ## Environment and Secrets
 
 - `tools/.env.template` documents variables needed for cPanel helper scripts.
-- `api/.env.dev` provides local backend defaults for development.
+- `api/.env.dev` provides shared non-sensitive local backend defaults.
+- `api/.env.dev.local` stores local secrets for API development and must not be committed.
+- `api/.env.dev.local.template` lists required secret keys for local setup.
 - Never commit real credentials, private keys, or populated secret files.
 - Be careful with:
   - `tools/.env`
+  - `api/.env.dev.local`
   - `tools/keys/*`
   - SSH key material and generated single-line key files
+
+Secret hygiene check before committing:
+- From repo root, run:
+  - `rg -n "^(MW_OAUTH2_CLIENT_ID|MW_OAUTH2_CLIENT_SECRET|ADMIN_MW_LABEL_ID)=" api/.env.dev api/.env.template api/.env.dev.local.template`
+- Expected result:
+  - `api/.env.dev` has no assignments for those keys.
+  - Only template files reference placeholders/descriptions.
 
 ## Codebase Conventions
 

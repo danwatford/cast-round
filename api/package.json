@@ -5,10 +5,10 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "dev": "env-cmd --file .env.dev nodemon --ext ts --exec 'node --inspect -r ts-node/register src/index.ts'",
+    "dev": "TS_NODE_FILES=true env-cmd --file .env.dev env-cmd --file .env.dev.local nodemon --ext ts --exec 'node --inspect -r ts-node/register src/index.ts'",
     "build": "tsc",
     "lint": "eslint --fix src",
-    "devDbMigrate": "env-cmd --file .env.dev ts-node src/persistence/db/migrate.ts",
+    "devDbMigrate": "env-cmd --file .env.dev env-cmd --file .env.dev.local ts-node src/persistence/db/migrate.ts",
     "dbMigrate": "node dist/persistence/db/migrate.js up"
   },
   "keywords": [],
