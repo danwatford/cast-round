@@ -5,6 +5,7 @@ This file provides guidance for coding agents working in this repository.
 ## Project Snapshot
 
 - Project: **Cast Round** web application.
+- Canonical database technology documentation: `docs/database-technologies.md`.
 - Structure:
   - `api/`: Node + Express + TypeScript backend (Sequelize + Umzug migrations).
   - `front-end/`: React + Vite + TypeScript frontend (Tailwind + DaisyUI).
@@ -113,5 +114,6 @@ Secret hygiene check before committing:
 - Before editing, locate the real source of truth (script/config/type) instead of guessing.
 - After edits, run the narrowest meaningful validation commands first, then broader checks if needed.
 - If deployment-related files are changed, verify both TEST and PROD workflows remain aligned unless the task explicitly requires divergence.
+- If a change modifies database engine/ORM/migrations/session persistence or DB operational workflows, update `docs/database-technologies.md` in the same change.
 - Do not revert unrelated local changes in a dirty working tree.
 - Prefer small, reviewable diffs with clear intent.

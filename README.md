@@ -1,5 +1,9 @@
 # Cast Round
 
+Canonical database technology documentation:
+
+- `docs/database-technologies.md`
+
 ## Local Development Infrastructure
 
 The local database stack used by the devcontainer lives at:
