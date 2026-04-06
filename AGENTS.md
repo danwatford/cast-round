@@ -5,6 +5,7 @@ This file provides guidance for coding agents working in this repository.
 ## Project Snapshot
 
 - Project: **Cast Round** web application.
+- Canonical technology stack documentation: `docs/techstack.md`.
 - Canonical database technology documentation: `docs/database-technologies.md`.
 - Structure:
   - `api/`: Node + Express + TypeScript backend (Sequelize + Umzug migrations).

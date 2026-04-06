@@ -1,6 +1,7 @@
 # Database Technologies
 
 This document is the canonical reference for Cast Round database technologies.
+For a project-wide stack overview (frontend, backend, infrastructure/deployment, and local tooling), see `docs/techstack.md`.
 When database engine, ORM, migration framework, session persistence behavior, or DB-related workflow behavior changes, update this file in the same change.
 
 ## Relational Database Engine
