@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mariadb:10.11
+    ports:
+      - "3306:3306"
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: "crdev"
+      MARIADB_ROOT_PASSWORD: "crdevpassword"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-pcrdevpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: "crdevpassword"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  phpmyadmin-login-hint:
+    image: alpine:3.20
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Localdev phpMyAdmin is available at http://localhost:8080"
+        echo "Login username: root"
+        echo "Login password: crdevpassword"
+    restart: "no"
+    depends_on:
+      phpmyadmin:
+        condition: service_started
+
+volumes:
+  db_data:

@@ -12,7 +12,7 @@
     "source=${localEnv:HOME}/.codex,target=/home/node/.codex,type=bind,consistency=cached"
   ],
   "initializeCommand": "mkdir --parents \"${HOME}/.codex\"",
-  "postCreateCommand": "bash -lc 'codex_version=$(npm view @openai/codex version) && codex_major=${codex_version%%.*} && if [ \"$codex_major\" -ge 1 ]; then npm install --global --no-fund --no-audit \"@openai/codex@$codex_major\"; else npm install --global --no-fund --no-audit @openai/codex; fi'",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
   "containerEnv": {
     "NSFAI_API_KEY": "${localEnv:NSFAI_API_KEY}"
   },

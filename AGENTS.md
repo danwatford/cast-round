@@ -20,10 +20,21 @@ This file provides guidance for coding agents working in this repository.
 
 ## Local Development
 
+0. Supporting Infrastructure (from repo root)
+   - `docker compose -f infra/localdev/docker-compose.yml up -d`
+   - Reset DB when needed: `docker compose -f infra/localdev/docker-compose.yml down -v`
+   - Local services:
+     - MariaDB: `host.docker.internal:3306`
+     - phpMyAdmin: `http://localhost:8080`
+   - phpMyAdmin login:
+     - Username: `root`
+     - Password: `crdevpassword`
+     - Server selection is preconfigured by compose (`PMA_HOST=db`).
 1. Backend
    - `cd api`
    - `npm ci`
    - `npm run dev` (uses `api/.env.dev`)
+   - Run migrations when needed: `npm run devDbMigrate`
 2. Frontend
    - `cd front-end`
    - `npm ci`
